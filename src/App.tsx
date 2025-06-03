@@ -1,9 +1,6 @@
+import Calendar from "./components/Calendar";
 function App() {
-  return (
-    <div>
-      <h1>google clone</h1>
-    </div>
-  );
+  return <Calendar />;
 }
 
 export default App;
