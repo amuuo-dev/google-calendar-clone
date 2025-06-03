@@ -5,8 +5,13 @@ import {
   endOfWeek,
   endOfMonth,
   eachDayOfInterval,
+  isSameMonth,
+  isBefore,
+  endOfDay,
+  isToday,
 } from "date-fns";
 import { formatDate } from "../utilis/formatDate";
+import { cc } from "../utilis/cc";
 
 const Calendar = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -33,7 +38,7 @@ const Calendar = () => {
             key={day.getTime()}
             day={day}
             showWeekName={index < 7}
-            selectMonth={selectedMonth}
+            selectedMonth={selectedMonth}
           />
         ))}
       </div>
@@ -46,19 +51,27 @@ export default Calendar;
 type CalendarDayProps = {
   day: Date;
   showWeekName: boolean;
-  selectMonth: Date;
+  selectedMonth: Date;
 };
 
 function CalendarDay({ day, showWeekName, selectedMonth }: CalendarDayProps) {
   return (
-    <div className="day non-month-day old-month-day">
+    <div
+      className={cc(
+        "day",
+        !isSameMonth(day, selectedMonth) && "non-month-day",
+        isBefore(endOfDay(day), new Date()) && "old-month-day"
+      )}
+    >
       <div className="day-header">
         {showWeekName && (
           <div className="week-name">
             {formatDate(day, { weekday: "short" })}
           </div>
         )}
-        <div className="day-number">{formatDate(day, { day: "numeric" })}</div>
+        <div className={cc("day-number", isToday(day) && "today")}>
+          {formatDate(day, { day: "numeric" })}
+        </div>
         <button className="add-event-btn">+</button>
       </div>
       {/* <div className="events">
