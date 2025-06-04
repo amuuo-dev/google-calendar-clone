@@ -1,7 +1,9 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState } from "react";
-import { EVENT_COLORS, type UnionType } from "../utilis/types";
+import { type UnionType } from "../utilis/types";
+import type { EVENT_COLORS } from "./useEvent";
 
-type Event = {
+export type Event = {
   id: string;
   name: string;
   date: Date;
@@ -24,7 +26,7 @@ type EventsProvidersProps = {
   children: React.ReactNode;
 };
 
-const Context = createContext<EventTypeContext | null>(null);
+export const Context = createContext<EventTypeContext | null>(null);
 
 const EventsProviders = ({ children }: EventsProvidersProps) => {
   const [events, setEvents] = useState<Event[]>([]);
