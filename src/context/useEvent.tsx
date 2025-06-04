@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Context } from "./Events";
 
-export const EVENT_COLORS = ["red", "blue", "green"] as const;
+export const EVENT_COLORS = ["red", "green", "blue"] as const;
 
 export function useEvent() {
   const value = useContext(Context);
