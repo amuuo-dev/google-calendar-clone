@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useId, useMemo, useState } from "react";
 import {
   startOfWeek,
   startOfMonth,
@@ -14,6 +14,10 @@ import {
 } from "date-fns";
 import { formatDate } from "../utilis/formatDate";
 import { cc } from "../utilis/cc";
+import { EVENT_COLORS, useEvent } from "../context/useEvent";
+import Modal, { type ModalProps } from "./Modal";
+import type { UnionType } from "../utilis/types";
+import type { Event } from "../context/Events";
 
 const Calendar = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -71,6 +75,9 @@ type CalendarDayProps = {
 };
 
 function CalendarDay({ day, showWeekName, selectedMonth }: CalendarDayProps) {
+  const [isNewEventModalOpen, setIsNewEventOpen] = useState(false);
+  const { addEvent } = useEvent();
+
   return (
     <div
       className={cc(
@@ -88,7 +95,12 @@ function CalendarDay({ day, showWeekName, selectedMonth }: CalendarDayProps) {
         <div className={cc("day-number", isToday(day) && "today")}>
           {formatDate(day, { day: "numeric" })}
         </div>
-        <button className="add-event-btn">+</button>
+        <button
+          className="add-event-btn"
+          onClick={() => setIsNewEventOpen(true)}
+        >
+          +
+        </button>
       </div>
       {/* <div className="events">
         <button className="all-day-event blue event">
@@ -105,6 +117,100 @@ function CalendarDay({ day, showWeekName, selectedMonth }: CalendarDayProps) {
           <div className="event-name">Event Name</div>
         </button>
       </div> */}
+      <EventFormModal
+        date={day}
+        isOpen={isNewEventModalOpen}
+        onClose={() => setIsNewEventOpen(false)}
+        onSubmit={addEvent}
+      />
     </div>
+  );
+}
+
+type EventFormModalProps = {
+  onSubmit: (event: UnionType<Event, "id">) => void;
+} & (
+  | { onDelete: () => void; event: Event; date?: never }
+  | {
+      onDelete?: never;
+      event?: never;
+      date: Date;
+    }
+) &
+  Omit<ModalProps, "children">;
+
+function EventFormModal({
+  onSubmit,
+  date,
+  onDelete,
+  event,
+  ...modalProps
+}: EventFormModalProps) {
+  const isNew = event == null;
+  const formId = useId();
+  const [selectedColor, setSelectedColor] = useState(
+    event?.color || EVENT_COLORS[0]
+  );
+  return (
+    <Modal {...modalProps}>
+      <div className="modal-title">
+        <div>{isNew ? "Add" : "Edit"} Event</div>
+        <small>{formatDate(date || event.date, { dateStyle: "short" })}</small>
+        <button className="close-btn" onClick={modalProps.onClose}>
+          &times;
+        </button>
+      </div>
+      <form>
+        <div className="form-group">
+          <label htmlFor={`${formId}-name`}>Name</label>
+          <input type="text" name="name" id={`${formId}-name`} />
+        </div>
+        <div className="form-group checkbox">
+          <input type="checkbox" name="all-day" id={`${formId}-all-day`} />
+          <label htmlFor={`${formId}-all-day`}>All Day?</label>
+        </div>
+        <div className="row">
+          <div className="form-group">
+            <label htmlFor={`${formId}-start-time`}>Start Time</label>
+            <input type="time" name="start-time" id={`${formId}-start-time`} />
+          </div>
+          <div className="form-group">
+            <label htmlFor={`${formId}-end-time`}>End Time</label>
+            <input type="time" name="end-time" id={`${formId}-end-time`} />
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Color</label>
+          <div className="row left">
+            {EVENT_COLORS.map((color) => (
+              <Fragment key={color}>
+                <input
+                  type="radio"
+                  name="color"
+                  value={color}
+                  id={`${formId}-${color}`}
+                  checked={selectedColor === color}
+                  onChange={() => setSelectedColor(color)}
+                  className="color-radio"
+                />
+                <label htmlFor={`${formId}-${color}`}>
+                  <span className="sr-only">{color}</span>
+                </label>
+              </Fragment>
+            ))}
+          </div>
+        </div>
+        <div className="row">
+          <button className="btn btn-success" type="submit">
+            {isNew ? "Add" : "Edit"}
+          </button>
+          {onDelete != null && (
+            <button className="btn btn-delete" type="button" onClick={onDelete}>
+              Delete
+            </button>
+          )}
+        </div>
+      </form>
+    </Modal>
   );
 }
