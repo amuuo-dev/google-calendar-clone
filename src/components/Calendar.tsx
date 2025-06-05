@@ -170,6 +170,45 @@ function EventFormModal({
   const endTimeRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+
+    const name = nameRef.current?.value;
+    const endTime = endTimeRef.current?.value;
+
+    if (name == null || name === "") return;
+
+    const commonProps = {
+      name,
+      date: date || event?.date,
+      color: selectedColor,
+    };
+    let newEvent: UnionType<Event, "id">;
+    if (isAllDayChecked) {
+      newEvent = {
+        ...commonProps,
+        allDay: true,
+      };
+    } else {
+      if (
+        startTime == null ||
+        startTime === "" ||
+        endTime == null ||
+        endTime === ""
+      ) {
+        return;
+      }
+      newEvent = {
+        ...commonProps,
+        allDay: false,
+        startTime,
+        endTime,
+      };
+    }
+    modalProps.onClose();
+    onSubmit(newEvent);
+  }
+
   return (
     <Modal {...modalProps}>
       <div className="modal-title">
@@ -179,7 +218,7 @@ function EventFormModal({
           &times;
         </button>
       </div>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor={`${formId}-name`}>Name</label>
           <input type="text" id={`${formId}-name`} required ref={nameRef} />
