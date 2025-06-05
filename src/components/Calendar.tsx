@@ -147,10 +147,17 @@ function EventFormModal({
   ...modalProps
 }: EventFormModalProps) {
   const isNew = event == null;
+
   const formId = useId();
+
   const [selectedColor, setSelectedColor] = useState(
     event?.color || EVENT_COLORS[0]
   );
+
+  const [isAllDayChecked, setIsAllDayChecked] = useState(
+    event?.allDay || false
+  );
+
   return (
     <Modal {...modalProps}>
       <div className="modal-title">
@@ -163,20 +170,35 @@ function EventFormModal({
       <form>
         <div className="form-group">
           <label htmlFor={`${formId}-name`}>Name</label>
-          <input type="text" name="name" id={`${formId}-name`} />
+          <input type="text" id={`${formId}-name`} required />
         </div>
         <div className="form-group checkbox">
-          <input type="checkbox" name="all-day" id={`${formId}-all-day`} />
+          <input
+            type="checkbox"
+            id={`${formId}-all-day`}
+            checked={isAllDayChecked}
+            onChange={(e) => setIsAllDayChecked(e.target.checked)}
+          />
           <label htmlFor={`${formId}-all-day`}>All Day?</label>
         </div>
         <div className="row">
           <div className="form-group">
             <label htmlFor={`${formId}-start-time`}>Start Time</label>
-            <input type="time" name="start-time" id={`${formId}-start-time`} />
+            <input
+              type="time"
+              id={`${formId}-start-time`}
+              required={!isAllDayChecked}
+              disabled={isAllDayChecked}
+            />
           </div>
           <div className="form-group">
             <label htmlFor={`${formId}-end-time`}>End Time</label>
-            <input type="time" name="end-time" id={`${formId}-end-time`} />
+            <input
+              type="time"
+              id={`${formId}-end-time`}
+              required={!isAllDayChecked}
+              disabled={isAllDayChecked}
+            />
           </div>
         </div>
         <div className="form-group">
