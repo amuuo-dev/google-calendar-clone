@@ -273,7 +273,13 @@ function EventFormModal({
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor={`${formId}-name`}>Name</label>
-          <input type="text" id={`${formId}-name`} required ref={nameRef} />
+          <input
+            type="text"
+            id={`${formId}-name`}
+            required
+            ref={nameRef}
+            defaultValue={event?.name}
+          />
         </div>
         <div className="form-group checkbox">
           <input
@@ -305,6 +311,7 @@ function EventFormModal({
               required={!isAllDayChecked}
               disabled={isAllDayChecked}
               ref={endTimeRef}
+              defaultValue={event?.endTime}
             />
           </div>
         </div>
