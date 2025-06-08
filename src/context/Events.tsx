@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { type UnionType } from "../utilis/types";
 import type { EVENT_COLORS } from "./useEvent";
 
@@ -31,7 +31,7 @@ type EventsProvidersProps = {
 export const Context = createContext<EventTypeContext | null>(null);
 
 const EventsProviders = ({ children }: EventsProvidersProps) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useLocalStorage("Events", []);
 
   function addEvent(eventDetails: UnionType<Event, "id">) {
     setEvents((e) => [...e, { ...eventDetails, id: crypto.randomUUID() }]);
@@ -55,5 +55,23 @@ const EventsProviders = ({ children }: EventsProvidersProps) => {
     </Context.Provider>
   );
 };
+
+function useLocalStorage(key: string, initialValue: Event[]) {
+  const [value, setValue] = useState<Event[]>(() => {
+    const jsonValue = localStorage.getItem(key);
+    if (jsonValue == null) return initialValue;
+
+    return (JSON.parse(jsonValue) as Event[]).map((event) => {
+      if (event.date instanceof Date) return event;
+      return { ...event, date: new Date(event.date) };
+    });
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [value, key]);
+
+  return [value, setValue] as const;
+}
 
 export default EventsProviders;
