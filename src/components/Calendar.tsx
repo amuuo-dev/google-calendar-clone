@@ -95,6 +95,8 @@ function CalendarDay({
   events,
 }: CalendarDayProps) {
   const [isNewEventModalOpen, setIsNewEventOpen] = useState(false);
+  const [isViewMoreOpen, setIsViewMoreOpen] = useState(false);
+
   const { addEvent } = useEvent();
 
   const sortedEvents = useMemo(() => {
@@ -143,7 +145,19 @@ function CalendarDay({
           getKey={(event) => event.id}
           renderItems={(event) => <CalendarEvent event={event} />}
           renderOverflow={(amount) => (
-            <button className="events-view-more-btn">+{amount} More</button>
+            <>
+              <button
+                onClick={() => setIsViewMoreOpen(true)}
+                className="events-view-more-btn"
+              >
+                +{amount} More
+              </button>
+              <ViewMoreCalendarEventsModal
+                events={sortedEvents}
+                isOpen={isViewMoreOpen}
+                onClose={() => setIsViewMoreOpen(false)}
+              />
+            </>
           )}
         />
       )}
@@ -154,6 +168,32 @@ function CalendarDay({
         onSubmit={addEvent}
       />
     </div>
+  );
+}
+
+type ViewMoreCalendarEventsModalProps = {
+  events: Event[];
+} & Omit<ModalProps, "children">;
+
+function ViewMoreCalendarEventsModal({
+  events,
+  ...modalProps
+}: ViewMoreCalendarEventsModalProps) {
+  if (events.length == null) return;
+  return (
+    <Modal {...modalProps}>
+      <div className="modal-title">
+        <small>{formatDate(events[0].date, { dateStyle: "short" })}</small>
+        <button className="close-btn" onClick={modalProps.onClose}>
+          &times;
+        </button>
+      </div>
+      <div className="events">
+        {events.map((event) => (
+          <CalendarEvent event={event} key={event.id} />
+        ))}
+      </div>
+    </Modal>
   );
 }
 
