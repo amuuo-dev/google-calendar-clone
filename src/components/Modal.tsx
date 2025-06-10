@@ -11,7 +11,7 @@ export type ModalProps = {
 
 const Modal = ({ children, isOpen, onClose }: ModalProps) => {
   const [isClosing, setIsClosing] = useState(false);
-  const prevIsOpen = useRef<boolean>();
+  const prevIsOpen = useRef<boolean>(null);
 
   useEffect(() => {
     function handler(e: KeyboardEvent) {
